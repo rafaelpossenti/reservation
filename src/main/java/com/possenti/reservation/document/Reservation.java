@@ -3,7 +3,9 @@ package com.possenti.reservation.document;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Document
 public class Reservation {
@@ -12,10 +14,10 @@ public class Reservation {
     private String id;
     private String email;
     private String name;
-    private LocalDateTime arrivalDate;
-    private LocalDateTime departureDate;
+    private LocalDate arrivalDate;
+    private LocalDate departureDate;
 
-    public Reservation(String email, String name, LocalDateTime arrivalDate, LocalDateTime departureDate) {
+    public Reservation(String email, String name, LocalDate arrivalDate, LocalDate departureDate) {
         this.email = email;
         this.name = name;
         this.arrivalDate = arrivalDate;
@@ -38,19 +40,25 @@ public class Reservation {
         this.name = name;
     }
 
-    public LocalDateTime getArrivalDate() {
+    public LocalDate getArrivalDate() {
         return arrivalDate;
     }
 
-    public void setArrivalDate(LocalDateTime arrivalDate) {
+    public void setArrivalDate(LocalDate arrivalDate) {
         this.arrivalDate = arrivalDate;
     }
 
-    public LocalDateTime getDepartureDate() {
+    public LocalDate getDepartureDate() {
         return departureDate;
     }
 
-    public void setDepartureDate(LocalDateTime departureDate) {
+    public void setDepartureDate(LocalDate departureDate) {
         this.departureDate = departureDate;
     }
+
+    //todo: name method
+    public List<LocalDate> getBookingDates() {
+        return this.arrivalDate.datesUntil(this.departureDate).collect(Collectors.toList());
+    }
+
 }

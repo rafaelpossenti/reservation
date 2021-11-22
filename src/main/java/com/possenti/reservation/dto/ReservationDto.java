@@ -1,25 +1,34 @@
 package com.possenti.reservation.dto;
 
 import com.possenti.reservation.document.Reservation;
+import com.possenti.reservation.validation.ReservationArrivalDate;
+import com.possenti.reservation.validation.ReservationArrivalDateBeforeDepartureDate;
+import com.possenti.reservation.validation.ReservationMaxStay;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
+@ReservationMaxStay
+@ReservationArrivalDate
+@ReservationArrivalDateBeforeDepartureDate
 public class ReservationDto {
 
-    @NotNull(message = "email cant be null")
-    @NotEmpty(message = "name cant be empty")
+    @NotNull(message = "email cannot be null")
+    @NotEmpty(message = "email cannot be empty")
     @Email
     private String email;
 
-    @NotNull(message = "name cant be null")
-    @NotEmpty(message = "name cant be empty")
+    @NotNull(message = "name cannot be null")
+    @NotEmpty(message = "name cannot be empty")
     private String name;
 
-    private LocalDateTime arrivalDate;
-    private LocalDateTime departureDate;
+    @NotNull(message = "arrivalDate cannot be null")
+    private LocalDate arrivalDate;
+
+    @NotNull(message = "departureDate cannot be null")
+    private LocalDate departureDate;
 
     public String getEmail() {
         return email;
@@ -37,19 +46,19 @@ public class ReservationDto {
         this.name = name;
     }
 
-    public LocalDateTime getArrivalDate() {
+    public LocalDate getArrivalDate() {
         return arrivalDate;
     }
 
-    public void setArrivalDate(LocalDateTime arrivalDate) {
+    public void setArrivalDate(LocalDate arrivalDate) {
         this.arrivalDate = arrivalDate;
     }
 
-    public LocalDateTime getDepartureDate() {
+    public LocalDate getDepartureDate() {
         return departureDate;
     }
 
-    public void setDepartureDate(LocalDateTime departureDate) {
+    public void setDepartureDate(LocalDate departureDate) {
         this.departureDate = departureDate;
     }
 

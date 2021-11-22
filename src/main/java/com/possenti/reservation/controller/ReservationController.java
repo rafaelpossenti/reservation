@@ -1,22 +1,33 @@
 package com.possenti.reservation.controller;
 
+import com.possenti.reservation.dto.RangeDateDto;
 import com.possenti.reservation.dto.ReservationDto;
 import com.possenti.reservation.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@RestController("/reservations")
+@RestController
+@RequestMapping("/reservations")
 public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
 
+    //todo: inserir query-params star and end
+    @GetMapping("/availability")
+    public void getAvailability(@RequestBody RangeDateDto rangeDateDto) {
+        reservationService.getAvailabilityDays(rangeDateDto);
+    }
+
     @PostMapping
-    public void reserve(@Valid @RequestBody ReservationDto reservationDto, BindingResult result) {
-        reservationService.save(reservationDto, result);
+    public ResponseEntity<ReservationDto> reserve(@RequestBody @Valid ReservationDto reservationDto, BindingResult bindingResults) throws MethodArgumentNotValidException {
+        reservationService.save(reservationDto, bindingResults);
+        return ResponseEntity.ok(null);
     }
 
     @DeleteMapping("/{book_id}")
