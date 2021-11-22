@@ -15,6 +15,8 @@ import java.time.LocalDate;
 @ReservationArrivalDateBeforeDepartureDate
 public class ReservationDto {
 
+    private String id;
+
     @NotNull(message = "email cannot be null")
     @NotEmpty(message = "email cannot be empty")
     @Email
@@ -29,6 +31,14 @@ public class ReservationDto {
 
     @NotNull(message = "departureDate cannot be null")
     private LocalDate departureDate;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getEmail() {
         return email;
@@ -64,6 +74,7 @@ public class ReservationDto {
 
     public Reservation reservationDtoToReservation() {
         return new Reservation(
+                this.id,
                 this.email,
                 this.name,
                 this.arrivalDate,

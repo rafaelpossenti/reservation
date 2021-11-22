@@ -1,6 +1,5 @@
 package com.possenti.reservation.controller;
 
-import com.possenti.reservation.dto.RangeDateDto;
 import com.possenti.reservation.dto.ReservationDto;
 import com.possenti.reservation.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/reservations")
@@ -18,25 +18,28 @@ public class ReservationController {
     @Autowired
     private ReservationService reservationService;
 
-    //todo: inserir query-params star and end
     @GetMapping("/availability")
-    public void getAvailability(@RequestBody RangeDateDto rangeDateDto) {
-        reservationService.getAvailabilityDays(rangeDateDto);
+    public void getAvailability(@RequestHeader("arrivalDate") LocalDate arrivalDate,
+                                @RequestHeader("departureDate") LocalDate departureDate) {
+        reservationService.getAvailabilityDays(arrivalDate, departureDate);
     }
 
     @PostMapping
-    public ResponseEntity<ReservationDto> reserve(@RequestBody @Valid ReservationDto reservationDto, BindingResult bindingResults) throws MethodArgumentNotValidException {
-        reservationService.save(reservationDto, bindingResults);
-        return ResponseEntity.ok(null);
+    public ResponseEntity<String> create(@RequestBody @Valid ReservationDto reservationDto, BindingResult bindingResults) throws MethodArgumentNotValidException {
+        final String reservationCode = reservationService.save(reservationDto, bindingResults);
+        return ResponseEntity.ok(reservationCode);
     }
 
-    @DeleteMapping("/{book_id}")
-    public void cancel(@Valid @RequestBody ReservationDto reservationDto) {
-
+    @PatchMapping("/{reservation_id}")
+    public ResponseEntity<String> update(@RequestBody ReservationDto dto,
+                                         @PathVariable("reservation_id") String reservationId,
+                                         BindingResult bindingResults) throws MethodArgumentNotValidException {
+        final String reservationCode = reservationService.update(reservationId, dto, bindingResults);
+        return ResponseEntity.ok(reservationCode);
     }
 
-    @PutMapping("/{book_id}")
-    public void update(@Valid @RequestBody ReservationDto reservationDto) {
-
+    @DeleteMapping("/{reservation_id}")
+    public void cancel(@PathVariable("reservation_id") String reservationId) throws MethodArgumentNotValidException {
+        reservationService.delete(reservationId);
     }
 }

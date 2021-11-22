@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-public class ApiError {
+public class Error {
 
     private HttpStatus status;
 
@@ -18,13 +18,13 @@ public class ApiError {
     private String message;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<String> subErrors;
+    private List<String> errors;
 
-    public ApiError(HttpStatus status, LocalDateTime timestamp, String message, List<String> subErrors) {
+    public Error(HttpStatus status, LocalDateTime timestamp, String message, List<String> subErrors) {
         this.status = status;
         this.timestamp = timestamp;
         this.message = message;
-        this.subErrors = subErrors;
+        this.errors = subErrors;
     }
 
     public HttpStatus getStatus() {
@@ -51,11 +51,11 @@ public class ApiError {
         this.message = message;
     }
 
-    public List<String> getSubErrors() {
-        return subErrors;
+    public List<String> getErrors() {
+        return errors;
     }
 
-    public void setSubErrors(List<String> subErrors) {
-        this.subErrors = subErrors;
+    public void setErrors(List<String> errors) {
+        this.errors = errors;
     }
 }
