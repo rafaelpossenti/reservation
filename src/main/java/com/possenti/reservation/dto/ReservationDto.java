@@ -6,12 +6,13 @@ import com.possenti.reservation.validation.ReservationArrivalDateBeforeDeparture
 import com.possenti.reservation.validation.ReservationMaxStay;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ReservationMaxStay
 @ReservationArrivalDate
+@ReservationMaxStay
 @ReservationArrivalDateBeforeDepartureDate
 public class ReservationDto {
 
@@ -27,9 +28,11 @@ public class ReservationDto {
     private String name;
 
     @NotNull(message = "arrivalDate cannot be null")
+    @Future(message = "arrivalDate date must be a future date")
     private LocalDate arrivalDate;
 
     @NotNull(message = "departureDate cannot be null")
+    @Future(message = "departure date must be a future date")
     private LocalDate departureDate;
 
     public String getId() {

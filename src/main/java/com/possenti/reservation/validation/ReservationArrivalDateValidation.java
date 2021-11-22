@@ -4,7 +4,7 @@ import com.possenti.reservation.dto.ReservationDto;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.time.Duration;
+
 import java.time.LocalDate;
 
 public class ReservationArrivalDateValidation implements ConstraintValidator<ReservationArrivalDate, ReservationDto> {

@@ -1,15 +1,17 @@
 package com.possenti.reservation.service;
 
 import com.possenti.reservation.document.Reservation;
+import com.possenti.reservation.dto.ReservationCodeDto;
 import com.possenti.reservation.dto.ReservationDto;
 import com.possenti.reservation.exception.AnyReservationAvailableException;
 import com.possenti.reservation.exception.ReservationNotFoundException;
 import com.possenti.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,44 +23,46 @@ public class ReservationService {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Retryable(include = CannotAcquireLockException.class,
+            maxAttempts = 2, backoff = @Backoff(delay = 100))
     @Transactional
-    public String save(ReservationDto reservationDto, BindingResult bindingResults) throws MethodArgumentNotValidException {
+    public ReservationCodeDto save(ReservationDto reservationDto)  {
         final Reservation reservation = reservationDto.reservationDtoToReservation();
 
-        validateIfDateRangeIsBusy(reservation, bindingResults);
+        validateIfDateRangeIsBusy(reservation);
 
-        return reservationRepository.save(reservation).getId();
+        final String code =  reservationRepository.save(reservation).getId();
+        return new ReservationCodeDto(code);
     }
 
     @Transactional
-    public String update(String reservationId, ReservationDto dto, BindingResult bindingResults) throws MethodArgumentNotValidException {
+    public ReservationCodeDto update(String reservationId, ReservationDto dto) {
         dto.setId(reservationId);
         this.findReservationById(reservationId);
         final Reservation reservation = dto.reservationDtoToReservation();
 
-        validateIfDateRangeIsBusy(reservation, bindingResults);
+        validateIfDateRangeIsBusy(reservation);
 
-        return reservationRepository.save(reservation).getId();
+        final String code =  reservationRepository.save(reservation).getId();
+        return new ReservationCodeDto(code);
     }
 
     @Transactional
-    public void delete(String reservationId)  {
+    public void delete(String reservationId) {
         this.findReservationById(reservationId);
         reservationRepository.deleteById(reservationId);
     }
 
-    public List<LocalDate> getAvailabilityDays(LocalDate arrivalDate, LocalDate departureDate) {
+    public List<LocalDate> getAvailableDays(LocalDate arrivalDate, LocalDate departureDate) {
         final LocalDate startDate = arrivalDate != null ? arrivalDate : LocalDate.now();
         final LocalDate endDate = departureDate != null ? departureDate : startDate.plusMonths(1);
 
-        List<LocalDate> vacantDays = startDate.datesUntil(endDate.plusDays(1)).collect(Collectors.toList());
+        final List<LocalDate> availableDays = startDate.datesUntil(endDate.plusDays(1)).collect(Collectors.toList());
 
-        List<Reservation> reservations = reservationRepository.findForDateRange(startDate, endDate);
-        System.out.println(reservations);
+        final List<Reservation> reservations = reservationRepository.findForDateRange(startDate, endDate);
 
-        reservations.forEach(b -> vacantDays.removeAll(b.getBookingDates()));
-        return vacantDays;
-
+        reservations.forEach(b -> availableDays.removeAll(b.getAvailableDates()));
+        return availableDays;
     }
 
     private Reservation findReservationById(String reservationId) {
@@ -66,9 +70,9 @@ public class ReservationService {
                 .orElseThrow(() -> new ReservationNotFoundException("Account not found with id: " + reservationId));
     }
 
-    private void validateIfDateRangeIsBusy(Reservation reservation, BindingResult bindingResults) throws MethodArgumentNotValidException {
-        List<LocalDate> vacantDays = getAvailabilityDays(reservation.getArrivalDate(), reservation.getDepartureDate());
-        if (!vacantDays.containsAll(reservation.getBookingDates())) {
+    private void validateIfDateRangeIsBusy(Reservation reservation) {
+        List<LocalDate> vacantDays = getAvailableDays(reservation.getArrivalDate(), reservation.getDepartureDate());
+        if (!vacantDays.containsAll(reservation.getAvailableDates())) {
             throw new AnyReservationAvailableException(reservation.getArrivalDate(), reservation.getDepartureDate());
         }
     }

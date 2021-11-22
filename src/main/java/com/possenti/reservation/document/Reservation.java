@@ -43,8 +43,7 @@ public class Reservation {
         return departureDate;
     }
 
-    //todo: name method
-    public List<LocalDate> getBookingDates() {
+    public List<LocalDate> getAvailableDates() {
         return this.arrivalDate.datesUntil(this.departureDate).collect(Collectors.toList());
     }
 
