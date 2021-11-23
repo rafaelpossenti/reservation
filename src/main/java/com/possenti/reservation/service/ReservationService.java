@@ -8,17 +8,13 @@ import com.possenti.reservation.exception.ReservationNotFoundException;
 import com.possenti.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -36,7 +32,7 @@ public class ReservationService {
     @Retryable(include = CannotAcquireLockException.class,
             maxAttempts = 2, backoff = @Backoff(delay = 100))
     @Transactional
-    public ReservationCodeDto save(ReservationDto reservationDto)  {
+    public ReservationCodeDto save(ReservationDto reservationDto) {
         try {
             writeLock.lock();
             final Reservation reservation = reservationDto.reservationDtoToReservation();

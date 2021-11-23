@@ -58,8 +58,8 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @PutMapping("/{reservation_id}")
-    public ResponseEntity<ReservationCodeDto> update(@RequestBody ReservationDto dto,
-                                                     @PathVariable("reservation_id") String reservationId) {
+    public ResponseEntity<ReservationCodeDto> update(@PathVariable("reservation_id") String reservationId,
+                                                     @RequestBody ReservationDto dto) {
         final ReservationCodeDto reservationCodeDto = reservationService.update(reservationId, dto);
         return ResponseEntity.ok(reservationCodeDto);
     }

@@ -25,7 +25,12 @@ public class Reservation {
         this.departureDate = departureDate;
     }
 
-    public String getId() { return id; }
+    public Reservation() {
+    }
+
+    public String getId() {
+        return id;
+    }
 
     public String getEmail() {
         return email;

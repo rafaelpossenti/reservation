@@ -38,7 +38,7 @@ public class ReservationControllerTest {
     @Test
     public void updateMustCallServiceupdateOnce() {
         final ReservationDto dto = this.getReservationDto();
-        reservationController.update(dto, "9999");
+        reservationController.update( "9999", dto);
         verify(reservationService, times(1)).update("9999", dto);
     }
 
