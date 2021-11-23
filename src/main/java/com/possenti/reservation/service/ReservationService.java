@@ -8,17 +8,27 @@ import com.possenti.reservation.exception.ReservationNotFoundException;
 import com.possenti.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
+
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Lock writeLock = lock.writeLock();
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -27,12 +37,16 @@ public class ReservationService {
             maxAttempts = 2, backoff = @Backoff(delay = 100))
     @Transactional
     public ReservationCodeDto save(ReservationDto reservationDto)  {
-        final Reservation reservation = reservationDto.reservationDtoToReservation();
+        try {
+            writeLock.lock();
+            final Reservation reservation = reservationDto.reservationDtoToReservation();
+            validateIfDateRangeIsBusy(reservation);
 
-        validateIfDateRangeIsBusy(reservation);
-
-        final String code =  reservationRepository.save(reservation).getId();
-        return new ReservationCodeDto(code);
+            final String code = reservationRepository.save(reservation).getId();
+            return new ReservationCodeDto(code);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Transactional
@@ -43,7 +57,7 @@ public class ReservationService {
 
         validateIfDateRangeIsBusy(reservation);
 
-        final String code =  reservationRepository.save(reservation).getId();
+        final String code = reservationRepository.save(reservation).getId();
         return new ReservationCodeDto(code);
     }
 
@@ -53,6 +67,7 @@ public class ReservationService {
         reservationRepository.deleteById(reservationId);
     }
 
+    @Transactional
     public List<LocalDate> getAvailableDays(LocalDate arrivalDate, LocalDate departureDate) {
         final LocalDate startDate = arrivalDate != null ? arrivalDate : LocalDate.now();
         final LocalDate endDate = departureDate != null ? departureDate : startDate.plusMonths(1);
