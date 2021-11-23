@@ -21,6 +21,8 @@ dependencies {
     implementation 'org.hibernate:hibernate-validator:6.0.1.Final'
     implementation 'org.springframework.retry:spring-retry:1.2.5.RELEASE'
 
+    implementation 'org.springdoc:springdoc-openapi-ui:1.5.12'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation("org.springframework.boot:spring-boot-test")
 
