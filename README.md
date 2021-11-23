@@ -57,6 +57,8 @@ The Json is also available in: [http://localhost:8080/v3/api-docs] (http://local
 
 ## Postman Collections
 
+The requests can be executed by postman, I created a collection here: [https://www.getpostman.com/collections/51d752fb752b5b003f69](https://www.getpostman.com/collections/51d752fb752b5b003f69)
+
 
 ## Tests
 
