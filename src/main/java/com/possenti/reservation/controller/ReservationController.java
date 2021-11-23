@@ -36,14 +36,16 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationCodeDto> create(@RequestBody @Valid ReservationDto reservationDto) {
+    public ResponseEntity<ReservationCodeDto> create(
+            @RequestBody @Valid ReservationDto reservationDto
+    ) {
         final ReservationCodeDto reservationCodeDto = reservationService.save(reservationDto);
         return ResponseEntity.ok(reservationCodeDto);
     }
 
     @PatchMapping("/{reservation_id}")
     public ResponseEntity<ReservationCodeDto> update(@RequestBody ReservationDto dto,
-                                         @PathVariable("reservation_id") String reservationId) {
+                                                     @PathVariable("reservation_id") String reservationId) {
         final ReservationCodeDto reservationCodeDto = reservationService.update(reservationId, dto);
         return ResponseEntity.ok(reservationCodeDto);
     }
